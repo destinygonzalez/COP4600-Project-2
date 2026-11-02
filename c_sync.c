@@ -1,7 +1,7 @@
 /* ============================================================================
  * c_sync.c  -  Person C (Password Cracker)
  *
- * Author: Oomat Latipov (U13921223)        <-- fill in your NetID
+ * Author: Oomat Latipov (U13921223)
  *
  * Description:
  *   Person C's half of the threaded cracker. Provides:
