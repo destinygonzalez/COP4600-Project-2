@@ -1,0 +1,6 @@
+src/project2
+output.txt
+src/output.txt
+*.o
+project2.zip
+.DS_Store
