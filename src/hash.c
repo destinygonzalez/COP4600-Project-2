@@ -1,6 +1,8 @@
 //Project 2 - Multithreaded Password Cracker
 //Group 15
-//Destiny Gonzalez
+//Destiny Gonzalez U39040990
+//Jose Nieves U49815853
+//Oomat Latipov U13921223
 
 //Description:
 
