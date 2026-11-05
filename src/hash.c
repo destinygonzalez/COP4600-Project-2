@@ -39,13 +39,13 @@ struct cracked_hash {
 //One password range is handed to a worker: [start, end)
 struct thread_arg {int start; int end;};
 
-//Shared state: filled by Person A, read by the workers Person B
-//Written through try_record_match Person C
+//Shared state: filled by Destiny, read by the workers (Jose)
+//Written through try_record_match Oomat
 char **g_passwords;		//All candidate passwords in the file order
 int g_n_passwords; 		//Number of candidate passwords
 struct cracked_hash *g_cracked; //Target hashes + their results
 int g_n_hashed;				//Number of target hashes
-pthread_mutex_t *g_locks;	//One mutex per hash entry (PersonC)
+pthread_mutex_t *g_locks;	//One mutex per hash entry (Oomat)
 
 //Function prototypes 
 void load_hashes(const char *path);			//A
@@ -57,7 +57,7 @@ void write_output_and_cleanup(const char *output);		//C
 int current_match_index(int hash_j);		//C
 
 
-//Algorithm tables + hash comparison (used by Person B)
+//Algorithm tables + hash comparison (used by Jose)
 
 typedef unsigned char * (*hashing)(unsigned char *, unsigned int);
 
@@ -151,9 +151,8 @@ void crack_hashed_passwords(char *password_list, char *hashed_list, char *output
 	write_output_and_cleanup(output); //Person C
 }
 
-//Placeholders - replaced by Person B and C
 
-//Person C implements
+//Oomat implements
 void init_locks(void)
 {
     g_locks = NULL;
@@ -175,7 +174,7 @@ void init_locks(void)
 }
 
 
-//Person C implements (real version does index-based tie break)
+//Oomat implements (real version does index-based tie break)
 void try_record_match(int hash_j, int pw_i, int alg_i)
 {
     pthread_mutex_lock(&g_locks[hash_j]);
@@ -202,13 +201,13 @@ void try_record_match(int hash_j, int pw_i, int alg_i)
     pthread_mutex_unlock(&g_locks[hash_j]);
 }
 
-//Person B implements current_match_index
+//Jose implements current_match_index
 int current_match_index(int hash_j)
 {
     return __atomic_load_n(&g_cracked[hash_j].match_index, __ATOMIC_ACQUIRE);
 }
 
-//Person C implements (real version writes results & frees memory)
+//Oomat implements (real version writes results & frees memory)
 void write_output_and_cleanup(const char *output)
 {
     FILE *out = fopen(output, "w");
