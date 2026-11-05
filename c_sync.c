@@ -4,7 +4,7 @@
  * Author: Oomat Latipov (U13921223)
  *
  * Description:
- *   Person C's half of the threaded cracker. Provides:
+ *   Oomat's half of the threaded cracker. Provides:
  *     - a per-hash mutex array and its init,
  *     - try_record_match(): the "first password in the file wins" tie-break
  *       that stays correct even though worker threads finish out of order,
@@ -12,17 +12,10 @@
  *       optimization in Person B's worker,
  *     - write_output_and_cleanup(): emits results and frees everything.
  *
- *   INTEGRATION (Person A): paste this file into hash.c AFTER the contract
- *   declarations (struct cracked_hash, the g_* globals) and after algs[], and
- *   call init_locks() once, right after load_hashes() and before any
- *   pthread_create(). Everything inside #ifdef C_SYNC_STANDALONE is inert in
- *   hash.c and may be deleted when pasting.
  *
  *   UNIT TEST (no other project files needed):
  *       gcc -Wall -Wextra -DC_SYNC_STANDALONE -pthread c_sync.c -o c_sync_test
  *       ./c_sync_test
- *   Add -fsanitize=thread or -fsanitize=address,undefined to check for data
- *   races and memory errors. run_tests.sh runs all of these for you.
  * ==========================================================================*/
 
 #include <stdio.h>
@@ -32,9 +25,8 @@
 
 /* ---------------------------------------------------------------------------
  * SHARED CONTRACT (frozen in Phase 0).
- * In hash.c these are already declared by Person A, so the definitions below
+ * In hash.c these are already declared by Destiny, so the definitions below
  * are compiled ONLY in standalone unit-test builds.
- * Do not change any of these shapes without telling the group.
  * ------------------------------------------------------------------------ */
 #ifdef C_SYNC_STANDALONE
 #define KEEP 16
@@ -46,7 +38,7 @@ struct cracked_hash {
     int   match_index;            /* file index of matching password; -1 = none */
 };
 
-/* globals filled by Person A, read here */
+/* globals filled by Destiny */
 char               **g_passwords;
 int                  g_n_passwords;
 struct cracked_hash *g_cracked;
@@ -63,14 +55,7 @@ extern int                  g_n_hashed;
 extern char                *algs[];
 #endif
 
-/* ---------------------------------------------------------------------------
- * Synchronization state: one mutex per hash entry.
- *
- * Why per-hash rather than one global lock: two threads that find matches for
- * DIFFERENT hashes never block each other. A lock is taken only when a thread
- * actually finds a candidate (rare), so contention is near zero and locking
- * does not limit the speedup.
- * ------------------------------------------------------------------------ */
+/* Synchronization state: one mutex per hash entry. */
 pthread_mutex_t *g_locks = NULL;
 
 /* Allocate and initialize one mutex per hash entry.
@@ -99,12 +84,12 @@ void init_locks(void)
 /* ---------------------------------------------------------------------------
  * try_record_match - the correctness heart of the project.
  *
- * Called by Person B's crack_worker() every time a worker's computed hash
+ * Called by Jose's crack_worker() every time a worker's computed hash
  * equals g_cracked[hash_j].hash. pw_i is the index of the matching password
  * in the common-passwords file; alg_i indexes algs[].
  *
  * If two passwords hash to the same target, the one EARLIER in the file must
- * win, regardless of which thread got there first. We only accept a match
+ * win, regardless of which thread got there first. Only accept a match
  * whose password index is lower than what is recorded (-1 = nothing yet).
  * The comparison is strict, so if one password matches under two algorithms,
  * the first algorithm the worker tries stays recorded, as in the baseline.
@@ -136,10 +121,10 @@ void try_record_match(int hash_j, int pw_i, int alg_i)
 }
 
 /* ---------------------------------------------------------------------------
- * current_match_index - lock-free read for Person B's skip optimization.
+ * current_match_index - lock-free read for Jose's skip optimization.
  *
  * Reading g_cracked[j].match_index directly while another thread updates it
- * is a data race (undefined behavior in C). Person B's check should read:
+ * is a data race (undefined behavior in C). Jose's check should read:
  *
  *     int m = current_match_index(j);
  *     if (m != -1 && m < start) continue;
@@ -210,7 +195,7 @@ void write_output_and_cleanup(const char *output)
 
 /* ===========================================================================
  * STANDALONE UNIT TEST  (compiled only with -DC_SYNC_STANDALONE)
- * Fakes A's loaders and B's workers. Workers release together and report
+ * Fakes Destiny's loaders and Jose's workers. Workers release together and report
  * matches in a different random order each, so a late low index regularly
  * arrives after a high one. Mutation-checked: removing the index comparison
  * or the lock makes this test (or ThreadSanitizer) fail.
@@ -293,7 +278,7 @@ static void *fake_worker(void *arg)
     return NULL;
 }
 
-/* Plays Person B's unlocked skip check: a hash's index may only ever fall. */
+/* Plays Jose's unlocked skip check: a hash's index may only ever fall. */
 static void *fake_reader(void *arg)
 {
     int *regressions = arg;
