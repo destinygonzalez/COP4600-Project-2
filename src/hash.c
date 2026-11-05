@@ -208,12 +208,6 @@ int current_match_index(int hash_j)
     return __atomic_load_n(&g_cracked[hash_j].match_index, __ATOMIC_ACQUIRE);
 }
 
-//Person B implements (real version hashes each password & compares)
-void *crack_worker(void *arg){
-	(void)arg; //no-op placeholder: does no cracking as of yet
-	return NULL;
-}
-
 //Person C implements (real version writes results & frees memory)
 void write_output_and_cleanup(const char *output)
 {
