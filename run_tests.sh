@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # ============================================================================
-# run_tests.sh - Person C's test harness for COP 4600 Project 2
+# run_tests.sh - Oomat's test harness for COP 4600 Project 2
 #
-# Proves the things Person C owns:
+# Proves the things Oomat owns:
 #   0. UNIT         - c_sync.c alone, plus ThreadSanitizer and ASan/UBSan builds
 #   1. CORRECTNESS  - output diffs clean against expected output on every test
 #                     case, and against the untouched baseline
@@ -11,25 +11,6 @@
 #   3. SPEEDUP      - baseline vs optimized time and the rubric points it earns
 #   4. THREAD CAP   - samples the live thread count; must stay <= 12
 #
-# Layout it expects (pass the two directories if yours differ):
-#   <repo>/
-#     src/                 your optimized project  (make -> ./project2)
-#     baseline/src/        an UNTOUCHED copy of the starter, for timing
-#
-# Make the baseline once, BEFORE editing hash.c, and do not commit it:
-#     mkdir -p baseline && cp -R src baseline/src
-#
-# Test cases: data/hashes.txt -> data/expected.txt, plus any extra pairs named
-#     data/<name>.txt -> data/<name>.expected
-#
-# Usage:   ./run_tests.sh [opt_src_dir] [baseline_src_dir]
-# Options (environment variables):
-#     STRESS_RUNS=10    repeated-run count
-#     MIN_SPEEDUP=4.3   speedup below this fails the run
-#     SKIP_SPEEDUP=1    skip timing (quick checks while developing)
-#
-# Target env: Ubuntu 22.04 / gcc 11 (same as Gradescope). Also runs on macOS,
-# but only a Linux result counts for warnings and speedup.
 # ============================================================================
 set -u
 export LC_ALL=C     # bash's `time` must print 1.23, never 1,23
